@@ -1,0 +1,111 @@
+swagger: "2.0"
+info:
+  description: "LiveOrg api"
+  version: "0.1.0"
+  title: "LiveOrg"
+schemes:
+- http
+produces:
+  - application/json
+paths:
+  /race:
+    post:
+      tags:
+        - Race
+      summary: Create new race
+      parameters:
+        - in: body
+          name: race
+          required: true
+          schema:
+            $ref: '#/definitions/NewRace'
+      responses:
+        200:
+          description: OK
+    put:
+      tags:
+        - Race
+      summary: Update race
+      responses:
+        200:
+          description: OK
+
+    delete:
+      tags:
+        - Race
+      summary: Delete race
+      responses:
+        200:
+          description: OK
+
+  /class:
+    post:
+      tags:
+        - Class
+      summary: Create class
+      responses:
+        200:
+          description: OK
+    put:
+      tags:
+        - Class
+      summary: Update class
+      responses:
+        200:
+          description: OK
+    delete:
+      tags:
+        - Class
+      summary: Delete class
+      responses:
+        200:
+          description: OK
+
+
+definitions:
+  NewRace:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+  Race:
+    allOf:
+    - $ref: '#/definitions/NewRace'
+    - type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+  Class:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        type: string
+
+
+parameters:
+  offsetParam:
+    name: offset
+    description: Смещение относительно последней записи
+    in: query
+    type: integer
+    format: int32
+    default: 0
+    required: true
+  limitParam:
+    name: limit
+    description: Количество записей
+    in: query
+    type: integer
+    format: int32
+    default: 20
+    required: true
