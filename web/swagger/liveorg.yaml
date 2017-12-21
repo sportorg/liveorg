@@ -8,6 +8,21 @@ schemes:
 produces:
   - application/json
 paths:
+  /races:
+    get:
+      tags:
+        - Race
+      summary: Get races
+      parameters:
+        - $ref: '#/parameters/offsetParam'
+        - $ref: '#/parameters/limitParam'
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Race'
+            type: array
   /race:
     post:
       tags:
@@ -20,52 +35,101 @@ paths:
           schema:
             $ref: '#/definitions/NewRace'
       responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Race'
+  /race/{race_id}:
+    get:
+      tags:
+        - Race
+      summary: Get race
+      parameters:
+        - $ref: '#/parameters/racePath'
+      responses:
         200:
           description: OK
+          schema:
+            $ref: '#/definitions/Race'
     put:
       tags:
         - Race
       summary: Update race
+      parameters:
+        - $ref: '#/parameters/racePath'
+        - in: body
+          name: race
+          required: true
+          schema:
+            $ref: '#/definitions/NewRace'
       responses:
-        200:
+        201:
           description: OK
-
+          schema:
+            $ref: '#/definitions/Race'
     delete:
       tags:
         - Race
       summary: Delete race
+      parameters:
+        - $ref: '#/parameters/racePath'
       responses:
-        200:
+        204:
           description: OK
 
-  /class:
+  /group:
     post:
       tags:
-        - Class
-      summary: Create class
+        - Group
+      summary: Create group
+      parameters:
+        - in: body
+          name: group
+          required: true
+          schema:
+            $ref: '#/definitions/NewGroup'
       responses:
-        200:
+        201:
           description: OK
+          schema:
+            $ref: '#/definitions/Group'
+  /group/{group_id}:
     put:
       tags:
-        - Class
-      summary: Update class
+        - Group
+      summary: Update group
+      parameters:
+        - $ref: '#/parameters/groupPath'
+        - in: body
+          name: group
+          required: true
+          schema:
+            $ref: '#/definitions/NewGroup'
       responses:
-        200:
+        201:
           description: OK
+          schema:
+            $ref: '#/definitions/Group'
     delete:
       tags:
-        - Class
-      summary: Delete class
+        - Group
+      summary: Delete group
+      parameters:
+        - $ref: '#/parameters/groupPath'
       responses:
-        200:
+        204:
           description: OK
 
 
 definitions:
   NewRace:
     type: object
+    required:
+      - name
     properties:
+      id:
+        type: string
+        format: uuid
       name:
         type: string
       description:
@@ -80,22 +144,49 @@ definitions:
         id:
           type: string
           format: uuid
-  Class:
+  NewGroup:
     type: object
+    required:
+      - race_id
+      - name
     properties:
       id:
+        type: string
+        format: uuid
+      race_id:
         type: string
         format: uuid
       name:
         type: string
       description:
         type: string
+  Group:
+    allOf:
+    - $ref: '#/definitions/NewGroup'
+    - type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
 
 
 parameters:
+  racePath:
+    name: race_id
+    in: path
+    type: string
+    format: uuid
+    required: true
+  groupPath:
+    name: group_id
+    in: path
+    type: string
+    format: uuid
+    required: true
   offsetParam:
     name: offset
-    description: Смещение относительно последней записи
     in: query
     type: integer
     format: int32
@@ -103,7 +194,6 @@ parameters:
     required: true
   limitParam:
     name: limit
-    description: Количество записей
     in: query
     type: integer
     format: int32
