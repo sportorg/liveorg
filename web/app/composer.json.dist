@@ -1,6 +1,6 @@
 {
     "require": {
-
+        "slim/slim": "^3.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "3.*",
