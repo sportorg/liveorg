@@ -33,7 +33,22 @@ paths:
           name: race
           required: true
           schema:
-            $ref: '#/definitions/NewRace'
+            $ref: '#/definitions/Race'
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Race'
+    put:
+      tags:
+        - Race
+      summary: Update race
+      parameters:
+        - in: body
+          name: race
+          required: true
+          schema:
+            $ref: '#/definitions/Race'
       responses:
         201:
           description: OK
@@ -51,22 +66,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Race'
-    put:
-      tags:
-        - Race
-      summary: Update race
-      parameters:
-        - $ref: '#/parameters/racePath'
-        - in: body
-          name: race
-          required: true
-          schema:
-            $ref: '#/definitions/NewRace'
-      responses:
-        201:
-          description: OK
-          schema:
-            $ref: '#/definitions/Race'
     delete:
       tags:
         - Race
@@ -77,6 +76,62 @@ paths:
         204:
           description: OK
 
+  /groups:
+    get:
+      tags:
+        - Group
+      summary: Get groups
+      parameters:
+        - in: query
+          name: race_id
+          type: string
+          format: uuid
+          required: false
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Group'
+            type: array
+    post:
+      tags:
+        - Group
+      summary: Create groups
+      parameters:
+        - in: body
+          name: groups
+          required: true
+          schema:
+            items:
+              $ref: '#/definitions/Group'
+            type: array
+      responses:
+        201:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Group'
+            type: array
+    put:
+      tags:
+        - Group
+      summary: Update groups
+      parameters:
+        - in: body
+          name: groups
+          required: true
+          schema:
+            items:
+              $ref: '#/definitions/Group'
+            type: array
+      responses:
+        201:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Group'
+            type: array
   /group:
     post:
       tags:
@@ -87,26 +142,36 @@ paths:
           name: group
           required: true
           schema:
-            $ref: '#/definitions/NewGroup'
+            $ref: '#/definitions/Group'
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Group'
+    put:
+      tags:
+        - Group
+      summary: Update group
+      parameters:
+        - in: body
+          name: group
+          required: true
+          schema:
+            $ref: '#/definitions/Group'
       responses:
         201:
           description: OK
           schema:
             $ref: '#/definitions/Group'
   /group/{group_id}:
-    put:
+    get:
       tags:
         - Group
-      summary: Update group
+      summary: Get group
       parameters:
         - $ref: '#/parameters/groupPath'
-        - in: body
-          name: group
-          required: true
-          schema:
-            $ref: '#/definitions/NewGroup'
       responses:
-        201:
+        200:
           description: OK
           schema:
             $ref: '#/definitions/Group'
@@ -120,11 +185,114 @@ paths:
         204:
           description: OK
 
+  /persons:
+    get:
+      tags:
+        - Person
+      summary: Get persons
+      parameters:
+        - in: query
+          name: race_id
+          type: string
+          format: uuid
+          required: false
+        - in: query
+          name: group_id
+          type: string
+          format: uuid
+          required: false
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+    post:
+      tags:
+        - Person
+      summary: Create persons
+      parameters:
+        - in: body
+          name: persons
+          required: true
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+      responses:
+        201:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+    put:
+      tags:
+        - Person
+      summary: Update persons
+      parameters:
+        - in: body
+          name: persons
+          required: true
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+      responses:
+        201:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+  /person:
+    post:
+      tags:
+        - Person
+      summary: Create person
+      parameters:
+        - in: body
+          name: person
+          required: true
+          schema:
+            $ref: '#/definitions/Person'
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Person'
+    put:
+      tags:
+        - Person
+      summary: Update person
+      parameters:
+        - in: body
+          name: person
+          required: true
+          schema:
+            $ref: '#/definitions/Person'
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Person'
+  /person/{person_id}:
+    delete:
+      tags:
+        - Person
+      summary: Delete person
+      parameters:
+        - $ref: '#/parameters/personPath'
+      responses:
+        204:
+          description: OK
 
 definitions:
-  NewRace:
+  Race:
     type: object
     required:
+      - id
       - name
     properties:
       id:
@@ -134,19 +302,26 @@ definitions:
         type: string
       description:
         type: string
-  Race:
-    allOf:
-    - $ref: '#/definitions/NewRace'
-    - type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          format: uuid
-  NewGroup:
+      start_date:
+        type: string
+        format: date-time
+      end_date:
+        type: string
+        format: date-time
+      timezone:
+        type: number
+        default: 0
+        minimum: -12
+        maximum: +12
+  Course:
+    type: object
+    properties:
+      code:
+        type: string
+  Group:
     type: object
     required:
+      - id
       - race_id
       - name
     properties:
@@ -160,16 +335,56 @@ definitions:
         type: string
       description:
         type: string
-  Group:
-    allOf:
-    - $ref: '#/definitions/NewGroup'
-    - type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          format: uuid
+      course:
+        items:
+          $ref: '#/definitions/Course'
+        type: array
+  Split:
+    type: object
+    properties:
+      code:
+        type: string
+      time:
+        type: number # msec
+  Person:
+    type: object
+    required:
+      - id
+      - group_id
+      - name
+    properties:
+      id:
+        type: string
+        format: uuid
+      group_id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      description:
+        type: string
+      link:
+        type: string
+        format: url
+      team:
+        type: string
+      start:
+        type: string
+        format: date-time
+      finish:
+        type: string
+        format: date-time
+      result:
+        type: number # msec
+      split:
+        items:
+          $ref: '#/definitions/Split'
+        type: array
+      status:
+        type: string
+        enum:
+          - OK
+          - DSQ
 
 
 parameters:
@@ -181,6 +396,12 @@ parameters:
     required: true
   groupPath:
     name: group_id
+    in: path
+    type: string
+    format: uuid
+    required: true
+  personPath:
+    name: person_id
     in: path
     type: string
     format: uuid
