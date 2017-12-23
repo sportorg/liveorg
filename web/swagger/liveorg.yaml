@@ -1,13 +1,25 @@
 swagger: "2.0"
 info:
   description: "LiveOrg api"
-  version: "0.1.0"
+  version: "1.0.0"
   title: "LiveOrg"
 schemes:
 - http
 produces:
   - application/json
+basePath: /api.v1
 paths:
+  /token:
+    get:
+      tags:
+        - Token
+      summary: Get token
+      responses:
+        200:
+          description: OK
+          examples:
+            result:
+              token: string
   /races:
     get:
       tags:
@@ -23,12 +35,16 @@ paths:
             items:
               $ref: '#/definitions/Race'
             type: array
-  /race:
+  /{token}/race:
     post:
       tags:
         - Race
       summary: Create new race
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: race
           required: true
@@ -44,6 +60,10 @@ paths:
         - Race
       summary: Update race
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: race
           required: true
@@ -60,18 +80,31 @@ paths:
         - Race
       summary: Get race
       parameters:
-        - $ref: '#/parameters/racePath'
+        - name: race_id
+          in: path
+          type: string
+          format: uuid
+          required: true
       responses:
         200:
           description: OK
           schema:
             $ref: '#/definitions/Race'
+  /{token}/race/{race_id}:
     delete:
       tags:
         - Race
       summary: Delete race
       parameters:
-        - $ref: '#/parameters/racePath'
+        - name: token
+          in: path
+          type: string
+          required: true
+        - name: race_id
+          in: path
+          type: string
+          format: uuid
+          required: true
       responses:
         204:
           description: OK
@@ -94,11 +127,16 @@ paths:
             items:
               $ref: '#/definitions/Group'
             type: array
+  /{token}/groups:
     post:
       tags:
         - Group
       summary: Create groups
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: groups
           required: true
@@ -118,6 +156,10 @@ paths:
         - Group
       summary: Update groups
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: groups
           required: true
@@ -132,12 +174,16 @@ paths:
             items:
               $ref: '#/definitions/Group'
             type: array
-  /group:
+  /{token}/group:
     post:
       tags:
         - Group
       summary: Create group
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: group
           required: true
@@ -153,6 +199,10 @@ paths:
         - Group
       summary: Update group
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: group
           required: true
@@ -169,18 +219,31 @@ paths:
         - Group
       summary: Get group
       parameters:
-        - $ref: '#/parameters/groupPath'
+        - name: group_id
+          in: path
+          type: string
+          format: uuid
+          required: true
       responses:
         200:
           description: OK
           schema:
             $ref: '#/definitions/Group'
+  /{token}/group/{group_id}:
     delete:
       tags:
         - Group
       summary: Delete group
       parameters:
-        - $ref: '#/parameters/groupPath'
+        - name: token
+          in: path
+          type: string
+          required: true
+        - name: group_id
+          in: path
+          type: string
+          format: uuid
+          required: true
       responses:
         204:
           description: OK
@@ -208,11 +271,16 @@ paths:
             items:
               $ref: '#/definitions/Person'
             type: array
+  /{token}/persons:
     post:
       tags:
         - Person
       summary: Create persons
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: persons
           required: true
@@ -232,6 +300,10 @@ paths:
         - Person
       summary: Update persons
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: persons
           required: true
@@ -246,12 +318,16 @@ paths:
             items:
               $ref: '#/definitions/Person'
             type: array
-  /person:
+  /{token}/person:
     post:
       tags:
         - Person
       summary: Create person
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: person
           required: true
@@ -267,6 +343,10 @@ paths:
         - Person
       summary: Update person
       parameters:
+        - name: token
+          in: path
+          type: string
+          required: true
         - in: body
           name: person
           required: true
@@ -277,13 +357,21 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Person'
-  /person/{person_id}:
+  /{token}/person/{person_id}:
     delete:
       tags:
         - Person
       summary: Delete person
       parameters:
-        - $ref: '#/parameters/personPath'
+        - name: token
+          in: path
+          type: string
+          required: true
+        - name: person_id
+          in: path
+          type: string
+          format: uuid
+          required: true
       responses:
         204:
           description: OK
@@ -316,6 +404,8 @@ definitions:
   Course:
     type: object
     properties:
+      title:
+        type: string
       code:
         type: string
   Group:
@@ -342,6 +432,8 @@ definitions:
   Split:
     type: object
     properties:
+      title:
+        type: string
       code:
         type: string
       time:
@@ -388,24 +480,6 @@ definitions:
 
 
 parameters:
-  racePath:
-    name: race_id
-    in: path
-    type: string
-    format: uuid
-    required: true
-  groupPath:
-    name: group_id
-    in: path
-    type: string
-    format: uuid
-    required: true
-  personPath:
-    name: person_id
-    in: path
-    type: string
-    format: uuid
-    required: true
   offsetParam:
     name: offset
     in: query
