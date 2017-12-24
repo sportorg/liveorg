@@ -13,6 +13,7 @@ class App
 {
     private $connection;
     private $query;
+    private $slim;
 
     /**
      * App constructor.
@@ -20,6 +21,7 @@ class App
      */
     public function __construct($connection)
     {
+        $this->slim = new \Slim\App();
         $this->connection = $connection;
         $this->query = $connection->createQueryBuilder();
     }
@@ -28,9 +30,7 @@ class App
     {
         $app = $this;
 
-        $slimApp = new \Slim\App();
-
-        $slimApp->group('/api.v1', function() use ($app) {
+        $this->slim->group('/api.v1', function() use ($app) {
 
             /** @var \Slim\App $this */
             $this->group('/{token}', function() use ($app) {
@@ -50,7 +50,24 @@ class App
                         ->setValue('id', '?')
                         ->setValue('name', '?')
                         ->setParameter(0, Uuid::fromString($race['id'])->getBytes())
-                        ->setParameter(1, $race['name'])->execute();
+                        ->setParameter(1, $race['name'])
+                        ->execute();
+                    return $response->withJson($race, 201);
+                });
+
+                /** @var \Slim\App $this */
+                $this->put('/race', function (Request $request, Response $response, $args) use ($app) {
+                    $race = $request->getParsedBody();
+                    if ($race['id'] != $app->getRaceIdByToken($args['token']))
+                    {
+                        return $response->withStatus(403);
+                    }
+                    $app->query
+                        ->update('race')
+                        ->set('name', '?')
+                        ->where('id="' . Uuid::fromString($race['id'])->getBytes() . '"')
+                        ->setParameter(0, $race['name'])
+                        ->execute();
                     return $response->withJson($race, 201);
                 });
 
@@ -90,6 +107,7 @@ class App
                 foreach ($res as &$race) {
                     $race['id'] = Uuid::fromBytes($race['id'])->toString();
                 }
+                unset($race);
                 return $response->withJson($res);
             });
 
@@ -104,10 +122,29 @@ class App
                 $race['id'] = Uuid::fromBytes($race['id'])->toString();
                 return $response->withJson($race);
             });
+
+            /** @var \Slim\App $this */
+            $this->get('/groups', function (Request $request, Response $response, $args) use ($app) {
+                $query = $app->query
+                    ->select('*')
+                    ->from('group');
+                $race_id = $request->getQueryParam('race_id');
+                if ($race_id)
+                {
+                    $query->where('race_id="' . Uuid::fromString($race_id)->getBytes() . '"');
+                }
+                $res = $query->execute()->fetchAll();
+                foreach ($res as &$group) {
+                    $group['id'] = Uuid::fromBytes($group['id'])->toString();
+                    $group['race_id'] = Uuid::fromBytes($group['race_id'])->toString();
+                }
+                unset($group);
+                return $response->withJson($res);
+            });
         });
 
         try {
-            $slimApp->run();
+            $this->slim->run();
             $this->connection->close();
         } catch (MethodNotAllowedException $e) {
         } catch (NotFoundException $e) {
