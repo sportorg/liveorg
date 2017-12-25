@@ -5,3 +5,9 @@
 ```
 docker-compose up -d
 ```
+
+```
+cd gui
+
+npm run start
+```

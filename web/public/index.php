@@ -2,6 +2,12 @@
 
 include '../app/vendor/autoload.php';
 
+$configuration = [
+    'settings' => [
+        'displayErrorDetails' => true,
+    ],
+];
+
 $db = new \App\Acme\Db([
     'driver'   => 'pdo_mysql',
     'host'     => 'mysql',
@@ -10,5 +16,5 @@ $db = new \App\Acme\Db([
     'user'     => 'root',
     'password' => 'root'
 ]);
-$app = new \App\Acme\App($db->getConnection());
+$app = new \App\Acme\App($db->getConnection(), $configuration);
 $app->run();
