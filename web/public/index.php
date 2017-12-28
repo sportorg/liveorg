@@ -2,9 +2,13 @@
 
 include '../app/vendor/autoload.php';
 
+$debug = true;
+
 $configuration = [
     'settings' => [
         'displayErrorDetails' => true,
+        'determineRouteBeforeAppMiddleware' => true,
+        'debug' => $debug
     ],
 ];
 
@@ -16,5 +20,13 @@ $db = new \App\Acme\Db([
     'user'     => 'root',
     'password' => 'root'
 ]);
-$app = new \App\Acme\App($db->getConnection(), $configuration);
+
+$logger = new \Monolog\Logger('main');
+$handler = new \Monolog\Handler\StreamHandler(
+    realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'logs.log',
+    $debug ? \Monolog\Logger::DEBUG : \Monolog\Logger::CRITICAL
+);
+$logger->pushHandler($handler);
+
+$app = new \App\Acme\App($db, $configuration, $logger);
 $app->run();

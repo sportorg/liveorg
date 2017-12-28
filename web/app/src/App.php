@@ -14,88 +14,80 @@ class App
     private $slim;
     private $connection;
     private $model;
+    private $logger;
 
     /**
      * App constructor.
-     * @param \Doctrine\DBAL\Connection $connection
+     * @param Db $db
      * @param array $configuration
+     * @param \Monolog\Logger $logger
      */
-    public function __construct($connection, $configuration = [])
+    public function __construct(Db $db, $configuration = [], $logger = null)
     {
         $container = new Container($configuration);
         $this->slim = new \Slim\App($container);
-        $this->connection = $connection;
-        $this->model = new Model($connection);
+        $this->connection = $db->getConnection();
+        $this->logger = $logger;
+        $this->model = new Model($this->connection);
     }
 
     public function run()
     {
         $app = $this;
 
-        $this->slim->group('/api.v1', function() use ($app) {
+        // Token
+        $this->slim->get('/api.v1/token', function (Request $request, Response $response, $args) use ($app) {
+            $token = $app->model->newToken();
+            $app->logger->debug('New token');
+            return $response->withJson(['token' => $token->toString()]);
+        });
 
-            /** @var \Slim\App $this */
-            $this->group('/{token}', function() use ($app) {
-                /** @var \Slim\App $this */
-                $this->post('/race', function (Request $request, Response $response, $args) use ($app) {;
-                    $race = $request->getParsedBody();
+        // Race
+        $this->slim->get('/api.v1/races', function (Request $request, Response $response, $args) use ($app) {
 
-                    $app->model->updateToken([
-                        'token' => $args['token'],
-                        'race_id' => $race['id']
-                    ]);
+            return $response->withJson($app->model->getRaces());
+        });
 
-                    $app->model->createRace($race);
+        $this->slim->get('/api.v1/race/{race_id}', function (Request $request, Response $response, $args) use ($app) {
+            return $response->withJson($app->model->getRace($args['race_id']));
+        });
 
-                    return $response->withJson($race, 201);
-                });
+        $this->slim->post('/api.v1/{token}/race', function (Request $request, Response $response, $args) use ($app) {;
+            $race = $request->getParsedBody();
 
-                /** @var \Slim\App $this */
-                $this->put('/race', function (Request $request, Response $response, $args) use ($app) {
-                    $race = $request->getParsedBody();
-                    if ($race['id'] != $app->model->getRaceIdByToken($args['token']))
-                    {
-                        return $response->withStatus(403);
-                    }
-                    $app->model->updateRace($race);
-                    return $response->withJson($race, 201);
-                });
+            $app->model->updateToken([
+                'token' => $args['token'],
+                'race_id' => $race['id']
+            ]);
 
-                /** @var \Slim\App $this */
-                $this->delete('/race/{race_id}', function (Request $request, Response $response, $args) use ($app) {
-                    if ($args['race_id'] != $app->model->getRaceIdByToken($args['token']))
-                    {
-                        return $response->withStatus(403);
-                    }
-                    $app->model->deleteRace($args['race_id']);
-                    return $response->withStatus(204);
-                });
-            });
+            $app->model->createRace($race);
 
-            // Without token
+            return $response->withJson($race, 201);
+        });
 
-            /** @var \Slim\App $this */
-            $this->get('/token', function (Request $request, Response $response, $args) use ($app) {
-                $token = $app->model->newToken();
-                return $response->withJson(['token' => $token->toString()]);
-            });
+        $this->slim->put('/api.v1/{token}/race', function (Request $request, Response $response, $args) use ($app) {
+            $race = $request->getParsedBody();
+            if ($race['id'] != $app->model->getRaceIdByToken($args['token']))
+            {
+                return $response->withStatus(403);
+            }
+            $app->model->updateRace($race);
+            return $response->withJson($race, 201);
+        });
 
-            /** @var \Slim\App $this */
-            $this->get('/races', function (Request $request, Response $response, $args) use ($app) {
+        $this->slim->delete('/api.v1/{token}/race/{race_id}', function (Request $request, Response $response, $args) use ($app) {
+            if ($args['race_id'] != $app->model->getRaceIdByToken($args['token']))
+            {
+                return $response->withStatus(403);
+            }
+            $app->model->deleteRace($args['race_id']);
+            return $response->withStatus(204);
+        });
 
-                return $response->withJson($app->model->getRaces());
-            });
-
-            /** @var \Slim\App $this */
-            $this->get('/race/{race_id}', function (Request $request, Response $response, $args) use ($app) {
-                return $response->withJson($app->model->getRace($args['race_id']));
-            });
-
-            /** @var \Slim\App $this */
-            $this->get('/groups', function (Request $request, Response $response, $args) use ($app) {
-                $race_id = $request->getQueryParam('race_id');
-                return $response->withJson($app->model->getGroups($race_id));
-            });
+        // Group
+        $this->slim->get('/api.v1/groups', function (Request $request, Response $response, $args) use ($app) {
+            $race_id = $request->getQueryParam('race_id');
+            return $response->withJson($app->model->getGroups($race_id));
         });
 
         try {
@@ -113,5 +105,13 @@ class App
     public function getModel()
     {
         return $this->model;
+    }
+
+    /**
+     * @return \Monolog\Logger|null
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 }
