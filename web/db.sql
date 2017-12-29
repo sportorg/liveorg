@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `person` (
   `name` varchar(255) NOT NULL,
   `description` text,
   `link` text,
+  `bib` varchar(255),
   `team` text,
   `start` datetime DEFAULT NULL,
   `finish` datetime DEFAULT NULL,
