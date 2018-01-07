@@ -4,6 +4,8 @@ include '../app/vendor/autoload.php';
 
 $debug = true;
 
+$publicDir = realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+
 $configuration = [
     'settings' => [
         'displayErrorDetails' => true,
@@ -23,7 +25,7 @@ $db = new \App\Acme\Db([
 
 $logger = new \Monolog\Logger('main');
 $handler = new \Monolog\Handler\StreamHandler(
-    realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'logs.log',
+    $publicDir . 'logs.log',
     $debug ? \Monolog\Logger::DEBUG : \Monolog\Logger::CRITICAL
 );
 $logger->pushHandler($handler);

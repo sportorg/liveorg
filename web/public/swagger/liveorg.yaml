@@ -399,8 +399,8 @@ definitions:
       timezone:
         type: number
         default: 0
-        minimum: -12
-        maximum: +12
+        minimum: -720 # minute
+        maximum: +720 # minute
   Course:
     type: object
     properties:
@@ -463,11 +463,9 @@ definitions:
       team:
         type: string
       start:
-        type: string
-        format: date-time
+        type: number # msec: from 00:00:00 to 23:59:59
       finish:
-        type: string
-        format: date-time
+        type: number # msec: from 00:00:00 to 23:59:59
       result:
         type: number # msec
       split:

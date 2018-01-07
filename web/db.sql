@@ -35,10 +35,10 @@ CREATE TABLE IF NOT EXISTS `person` (
   `name` varchar(255) NOT NULL,
   `description` text,
   `link` text,
-  `bib` varchar(255),
+  `bib` varchar(255) DEFAULT NULL,
   `team` text,
-  `start` datetime DEFAULT NULL,
-  `finish` datetime DEFAULT NULL,
+  `start` int(11) DEFAULT NULL,
+  `finish` int(11) DEFAULT NULL,
   `result` int(11) DEFAULT NULL,
   `split` text,
   `status` enum('OK','DSQ') DEFAULT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `race` (
   `description` text,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
-  `timezone` time DEFAULT NULL,
+  `timezone` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

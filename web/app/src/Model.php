@@ -11,6 +11,10 @@ class Model
     private $connection;
     private $query;
 
+    public static function ifSet(&$val, $def = null) {
+        return isset($val) ? $val : $def;
+    }
+
     /**
      * Model constructor.
      * @param \Doctrine\DBAL\Connection $connection
@@ -73,20 +77,36 @@ class Model
             ->insert('race')
             ->setValue('id', '?')
             ->setValue('name', '?')
+            ->setValue('description', '?')
+            ->setValue('start_date', '?')
+            ->setValue('end_date', '?')
+            ->setValue('timezone', '?')
             ->setParameter(0, Uuid::fromString($race['id'])->getBytes())
             ->setParameter(1, $race['name'])
+            ->setParameter(2, $race['description'])
+            ->setParameter(3, self::ifSet($race['start_date']))
+            ->setParameter(4, self::ifSet($race['end_date']))
+            ->setParameter(5, self::ifSet($race['timezone']))
             ->execute();
     }
 
     public function updateRace($race)
     {
-        return $this
+        $query = $this
             ->getQuery()
             ->update('race')
             ->set('name', '?')
+            ->set('description', '?')
+            ->set('start_date', '?')
+            ->set('end_date', '?')
+            ->set('timezone', '?')
             ->where('id="' . Uuid::fromString($race['id'])->getBytes() . '"')
             ->setParameter(0, $race['name'])
-            ->execute();
+            ->setParameter(1, $race['description'])
+            ->setParameter(2, self::ifSet($race['start_date']))
+            ->setParameter(3, self::ifSet($race['end_date']))
+            ->setParameter(4, self::ifSet($race['timezone']));
+        return $query->execute();
     }
 
     public function deleteRace($race_id)
