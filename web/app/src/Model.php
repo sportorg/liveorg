@@ -33,6 +33,23 @@ class Model
         return $this->query;
     }
 
+    /**
+     * @return \Doctrine\DBAL\Connection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    public function deleteById($id, $table)
+    {
+        return $this
+            ->getQuery()
+            ->delete($table)
+            ->where('id="' . Uuid::fromString($id)->getBytes() . '"')
+            ->execute();
+    }
+
     public function newToken()
     {
         $token = Uuid::uuid4();
@@ -70,7 +87,37 @@ class Model
         return Uuid::fromBytes($res['race_id'])->toString();
     }
 
-    public function createRace($race)
+    public function getRaces()
+    {
+        $res = $this
+            ->getQuery()
+            ->select('*')
+            ->from('race')
+            ->execute()
+            ->fetchAll();
+        foreach ($res as &$race) {
+            $race['id'] = Uuid::fromBytes($race['id'])->toString();
+        }
+        unset($race);
+
+        return $res;
+    }
+
+    public function getRace($raceId)
+    {
+        $race = $this
+            ->getQuery()
+            ->select('*')
+            ->from('race')
+            ->where('id="' . Uuid::fromString($raceId)->getBytes() . '"')
+            ->execute()
+            ->fetch();
+        $race['id'] = Uuid::fromBytes($race['id'])->toString();
+
+        return $race;
+    }
+
+    public function insertRace($race)
     {
         return $this
             ->getQuery()
@@ -109,54 +156,20 @@ class Model
         return $query->execute();
     }
 
-    public function deleteRace($race_id)
+    public function deleteRace($raceId)
     {
-        return $this
-            ->getQuery()
-            ->delete('race')
-            ->where('id="' . Uuid::fromString($race_id)->getBytes() . '"')
-            ->execute();
+        return $this->deleteById($raceId, 'race');
     }
 
-    public function getRaces()
-    {
-        $res = $this
-            ->getQuery()
-            ->select('*')
-            ->from('race')
-            ->execute()
-            ->fetchAll();
-        foreach ($res as &$race) {
-            $race['id'] = Uuid::fromBytes($race['id'])->toString();
-        }
-        unset($race);
-
-        return $res;
-    }
-
-    public function getRace($race_id)
-    {
-        $race = $this
-            ->getQuery()
-            ->select('*')
-            ->from('race')
-            ->where('id="' . Uuid::fromString($race_id)->getBytes() . '"')
-            ->execute()
-            ->fetch();
-        $race['id'] = Uuid::fromBytes($race['id'])->toString();
-
-        return $race;
-    }
-
-    public function getGroups($race_id = null)
+    public function getGroups($raceId = null)
     {
         $query = $this
             ->getQuery()
             ->select('*')
             ->from('`group`');
-        if ($race_id)
+        if ($raceId)
         {
-            $query->where('race_id="' . Uuid::fromString($race_id)->getBytes() . '"');
+            $query->where('race_id="' . Uuid::fromString($raceId)->getBytes() . '"');
         }
         $res = $query->execute();
         if (is_int($res)) {
@@ -172,11 +185,149 @@ class Model
         return $res;
     }
 
-    /**
-     * @return \Doctrine\DBAL\Connection
-     */
-    public function getConnection()
+    public function insertGroup($group)
     {
-        return $this->connection;
+        return $this
+            ->getQuery()
+            ->insert('group')
+            ->setValue('id', '?')
+            ->setValue('race_id', '?')
+            ->setValue('name', '?')
+            ->setValue('description', '?')
+            ->setValue('course', '?')
+            ->setParameter(0, Uuid::fromString($group['id'])->getBytes())
+            ->setParameter(1, Uuid::fromString($group['race_id'])->getBytes())
+            ->setParameter(2, $group['name'])
+            ->setParameter(3, self::ifSet($group['description']))
+            ->setParameter(4, self::ifSet($group['course']))
+            ->execute();
+    }
+
+    public function updateGroup($group)
+    {
+        return $this
+            ->getQuery()
+            ->insert('group')
+            ->set('race_id', '?')
+            ->set('name', '?')
+            ->set('description', '?')
+            ->set('course', '?')
+            ->where('id="' . Uuid::fromString($group['id'])->getBytes() . '"')
+            ->setParameter(0, Uuid::fromString($group['race_id'])->getBytes())
+            ->setParameter(1, $group['name'])
+            ->setParameter(2, self::ifSet($group['description']))
+            ->setParameter(3, self::ifSet($group['course']))
+            ->execute();
+    }
+
+    public function deleteGroup($id)
+    {
+        return $this->deleteById($id, 'group');
+    }
+
+    public function getPersons($groupId = null)
+    {
+        $res = $this
+            ->getQuery()
+            ->select('*')
+            ->from('`person`');
+        if (!is_null($groupId)) {
+            $res = $res->where('group_id="' . Uuid::fromString($groupId)->getBytes() . '"');
+        }
+        $res = $res->execute();
+        if (is_int($res)) {
+            return [];
+        }
+        $res = $res->fetchAll();
+        foreach ($res as &$person) {
+            $person['id'] = Uuid::fromBytes($person['id'])->toString();
+            $person['group_id'] = Uuid::fromBytes($person['group_id'])->toString();
+        }
+        unset($person);
+
+        return $res;
+    }
+
+    public function getPerson($id)
+    {
+        $person = $this
+            ->getQuery()
+            ->select('*')
+            ->from('person')
+            ->where('id="' . Uuid::fromString($id)->getBytes() . '"')
+            ->execute()
+            ->fetch();
+        $person['id'] = Uuid::fromBytes($person['id'])->toString();
+        $person['group_id'] = Uuid::fromBytes($person['group_id'])->toString();
+
+        return $person;
+    }
+
+    public function insertPerson($person)
+    {
+        return $this
+            ->getQuery()
+            ->insert('person')
+            ->setValue('id', '?')
+            ->setValue('group_id', '?')
+            ->setValue('name', '?')
+            ->setValue('description', '?')
+            ->setValue('link', '?')
+            ->setValue('bib', '?')
+            ->setValue('team', '?')
+            ->setValue('start', '?')
+            ->setValue('finish', '?')
+            ->setValue('result', '?')
+            ->setValue('split', '?')
+            ->setValue('status', '?')
+            ->setParameter(0, Uuid::fromString($person['id'])->getBytes())
+            ->setParameter(1, Uuid::fromString($person['group_id'])->getBytes())
+            ->setParameter(2, $person['name'])
+            ->setParameter(3, self::ifSet($person['description']))
+            ->setParameter(4, self::ifSet($person['link']))
+            ->setParameter(5, self::ifSet($person['bib']))
+            ->setParameter(6, self::ifSet($person['team']))
+            ->setParameter(7, self::ifSet($person['start']))
+            ->setParameter(8, self::ifSet($person['finish']))
+            ->setParameter(9, self::ifSet($person['result']))
+            ->setParameter(10, self::ifSet($person['split']))
+            ->setParameter(11, self::ifSet($person['status']))
+            ->execute();
+    }
+
+    public function updatePerson($person)
+    {
+        return $this
+            ->getQuery()
+            ->update('person')
+            ->set('group_id', '?')
+            ->set('name', '?')
+            ->set('description', '?')
+            ->set('link', '?')
+            ->set('bib', '?')
+            ->set('team', '?')
+            ->set('start', '?')
+            ->set('finish', '?')
+            ->set('result', '?')
+            ->set('split', '?')
+            ->set('status', '?')
+            ->where('id="' . Uuid::fromString($person['id'])->getBytes() . '"')
+            ->setParameter(0, Uuid::fromString($person['group_id'])->getBytes())
+            ->setParameter(1, $person['name'])
+            ->setParameter(2, self::ifSet($person['description']))
+            ->setParameter(3, self::ifSet($person['link']))
+            ->setParameter(4, self::ifSet($person['bib']))
+            ->setParameter(5, self::ifSet($person['team']))
+            ->setParameter(6, self::ifSet($person['start']))
+            ->setParameter(7, self::ifSet($person['finish']))
+            ->setParameter(8, self::ifSet($person['result']))
+            ->setParameter(9, self::ifSet($person['split']))
+            ->setParameter(10, self::ifSet($person['status']))
+            ->execute();
+    }
+
+    public function deletePerson($id)
+    {
+        return $this->deleteById($id, 'person');
     }
 }

@@ -61,7 +61,7 @@ class App
                 'race_id' => $race['id']
             ]);
 
-            $app->model->createRace($race);
+            $app->model->insertRace($race);
 
             return $response->withJson($race, 201);
         });
@@ -87,8 +87,20 @@ class App
 
         // Group
         $this->slim->get('/api.v1/groups[/]', function (Request $request, Response $response, $args) use ($app) {
-            $race_id = $request->getQueryParam('race_id');
-            return $response->withJson($app->model->getGroups($race_id));
+            $raceId = $request->getQueryParam('race_id');
+            return $response->withJson($app->model->getGroups($raceId));
+        });
+
+        // Person
+        $this->slim->get('/api.v1/persons[/]', function (Request $request, Response $response, $args) use ($app) {
+            $raceId = $request->getQueryParam('race_id');
+            $groupId = $request->getQueryParam('group_id');
+            if ($groupId) {
+                $app->logger->debug('Get persons by group');
+                return $response->withJson($app->model->getPersons($groupId));
+            }
+            $app->logger->debug('Get persons all');
+            return $response->withJson($app->model->getPersons());
         });
 
         try {
