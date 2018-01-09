@@ -35,15 +35,16 @@ paths:
             items:
               $ref: '#/definitions/Race'
             type: array
-  /{token}/race:
+  /race:
     post:
       tags:
         - Race
       summary: Create new race
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: race
@@ -60,9 +61,10 @@ paths:
         - Race
       summary: Update race
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: race
@@ -90,15 +92,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Race'
-  /{token}/race/{race_id}:
     delete:
       tags:
         - Race
       summary: Delete race
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - name: race_id
           in: path
@@ -127,15 +129,15 @@ paths:
             items:
               $ref: '#/definitions/Group'
             type: array
-  /{token}/groups:
     post:
       tags:
         - Group
       summary: Create groups
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: groups
@@ -156,9 +158,10 @@ paths:
         - Group
       summary: Update groups
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: groups
@@ -174,15 +177,16 @@ paths:
             items:
               $ref: '#/definitions/Group'
             type: array
-  /{token}/group:
+  /group:
     post:
       tags:
         - Group
       summary: Create group
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: group
@@ -199,9 +203,10 @@ paths:
         - Group
       summary: Update group
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: group
@@ -229,15 +234,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Group'
-  /{token}/group/{group_id}:
     delete:
       tags:
         - Group
       summary: Delete group
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - name: group_id
           in: path
@@ -271,15 +276,15 @@ paths:
             items:
               $ref: '#/definitions/Person'
             type: array
-  /{token}/persons:
     post:
       tags:
         - Person
       summary: Create persons
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: persons
@@ -300,9 +305,10 @@ paths:
         - Person
       summary: Update persons
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: persons
@@ -318,15 +324,16 @@ paths:
             items:
               $ref: '#/definitions/Person'
             type: array
-  /{token}/person:
+  /person:
     post:
       tags:
         - Person
       summary: Create person
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: person
@@ -343,9 +350,10 @@ paths:
         - Person
       summary: Update person
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - in: body
           name: person
@@ -357,15 +365,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Person'
-  /{token}/person/{person_id}:
+  /person/{person_id}:
     delete:
       tags:
         - Person
       summary: Delete person
       parameters:
-        - name: token
-          in: path
+        - in: header
+          name: X-Token
           type: string
+          format: uuid
           required: true
         - name: person_id
           in: path

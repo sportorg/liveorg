@@ -1,13 +1,13 @@
 {
 	"info": {
 		"name": "LiveOrg",
-		"_postman_id": "08dc179c-71a4-0b69-7aa0-4cc9f9acb8d8",
+		"_postman_id": "a0d5c7ef-45d3-8ed3-4fe0-dfe8e8d5a1db",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Get race",
+			"name": "Get token",
 			"event": [
 				{
 					"listen": "test",
@@ -31,7 +31,10 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{baseUrl}}/token",
 					"host": [
@@ -40,8 +43,7 @@
 					"path": [
 						"token"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -73,6 +75,10 @@
 					{
 						"key": "Content-Type",
 						"value": "application/json"
+					},
+					{
+						"key": "X-Token",
+						"value": "{{token}}"
 					}
 				],
 				"body": {
@@ -80,16 +86,14 @@
 					"raw": "{\n\t\"id\": \"68eecfe3-5444-4068-b1cb-5a675e1202b3\",\n\t\"name\": \"New Race\"\n}"
 				},
 				"url": {
-					"raw": "{{baseUrl}}/{{token}}/race",
+					"raw": "{{baseUrl}}/race",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
-						"{{token}}",
 						"race"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -112,7 +116,10 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{baseUrl}}/races",
 					"host": [
@@ -121,8 +128,7 @@
 					"path": [
 						"races"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -157,42 +163,12 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
-				"body": {},
-				"url": {
-					"raw": "{{baseUrl}}/{{token}}/race/{{race_id}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"{{token}}",
-						"race",
-						"{{race_id}}"
-					]
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "Get race copy",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "49f0d4ff-9270-4753-9453-dc827c505f8a",
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						]
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "{{token}}"
 					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
+				],
 				"body": {},
 				"url": {
 					"raw": "{{baseUrl}}/race/{{race_id}}",
@@ -203,8 +179,7 @@
 						"race",
 						"{{race_id}}"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		}

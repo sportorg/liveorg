@@ -19,45 +19,62 @@ class App
     /**
      * App constructor.
      * @param Db $db
-     * @param array $configuration
+     * @param array $configuration slim
      * @param \Monolog\Logger $logger
      */
     public function __construct(Db $db, $configuration = [], $logger = null)
     {
-        $container = new Container($configuration);
-        $this->slim = new \Slim\App($container);
+        $this->slim = new \Slim\App(new Container($configuration));
         $this->connection = $db->getConnection();
         $this->logger = $logger;
         $this->model = new Model($this->connection);
     }
 
+    private static $instance;
+    private static $isRun = false;
+
+    /**
+     * @return $this
+     */
+    public static function getInstance()
+    {
+        return self::$instance;
+    }
+
     public function run()
     {
-        $app = $this;
+        if (self::$isRun) {
+            return;
+        }
+        self::$isRun = true;
+        self::$instance = $this;
 
         // Token
-        $this->slim->get('/api.v1/token[/]', function (Request $request, Response $response, $args) use ($app) {
-            $app->logger->debug('New token start');
+        $this->slim->get('/api.v1/token[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
+            $app->logger->debug('New token');
             $token = $app->model->newToken();
-            $app->logger->debug('New token end');
             return $response->withJson(['token' => $token->toString()]);
         });
 
         // Race
-        $this->slim->get('/api.v1/races[/]', function (Request $request, Response $response, $args) use ($app) {
-
+        $this->slim->get('/api.v1/races[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
             return $response->withJson($app->model->getRaces());
         });
 
-        $this->slim->get('/api.v1/race/{race_id}[/]', function (Request $request, Response $response, $args) use ($app) {
+        $this->slim->get('/api.v1/race/{race_id}[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
             return $response->withJson($app->model->getRace($args['race_id']));
         });
 
-        $this->slim->post('/api.v1/{token}/race[/]', function (Request $request, Response $response, $args) use ($app) {;
+        $this->slim->post('/api.v1/race[/]', function (Request $request, Response $response, $args) {;
+            $app = App::getInstance();
+            $token = $request->getHeader('X-Token')[0];
             $race = $request->getParsedBody();
 
             $app->model->updateToken([
-                'token' => $args['token'],
+                'token' => $token,
                 'race_id' => $race['id']
             ]);
 
@@ -66,9 +83,11 @@ class App
             return $response->withJson($race, 201);
         });
 
-        $this->slim->put('/api.v1/{token}/race[/]', function (Request $request, Response $response, $args) use ($app) {
+        $this->slim->put('/api.v1/race[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
+            $token = $request->getHeader('X-Token')[0];
             $race = $request->getParsedBody();
-            if ($race['id'] != $app->model->getRaceIdByToken($args['token']))
+            if ($race['id'] != $app->model->getRaceIdByToken($token))
             {
                 return $response->withStatus(403);
             }
@@ -76,8 +95,10 @@ class App
             return $response->withJson($race, 201);
         });
 
-        $this->slim->delete('/api.v1/{token}/race/{race_id}[/]', function (Request $request, Response $response, $args) use ($app) {
-            if ($args['race_id'] != $app->model->getRaceIdByToken($args['token']))
+        $this->slim->delete('/api.v1/race/{race_id}[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
+            $token = $request->getHeader('X-Token')[0];
+            if ($args['race_id'] != $app->model->getRaceIdByToken($token))
             {
                 return $response->withStatus(403);
             }
@@ -86,13 +107,15 @@ class App
         });
 
         // Group
-        $this->slim->get('/api.v1/groups[/]', function (Request $request, Response $response, $args) use ($app) {
+        $this->slim->get('/api.v1/groups[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
             $raceId = $request->getQueryParam('race_id');
             return $response->withJson($app->model->getGroups($raceId));
         });
 
         // Person
-        $this->slim->get('/api.v1/persons[/]', function (Request $request, Response $response, $args) use ($app) {
+        $this->slim->get('/api.v1/persons[/]', function (Request $request, Response $response, $args) {
+            $app = App::getInstance();
             $raceId = $request->getQueryParam('race_id');
             $groupId = $request->getQueryParam('group_id');
             if ($groupId) {
