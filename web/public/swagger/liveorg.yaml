@@ -47,7 +47,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: race
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Race'
@@ -67,7 +67,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: race
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Race'
@@ -140,7 +140,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: groups
+          name: body
           required: true
           schema:
             items:
@@ -164,7 +164,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: groups
+          name: body
           required: true
           schema:
             items:
@@ -189,7 +189,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: group
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Group'
@@ -209,7 +209,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: group
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Group'
@@ -287,7 +287,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: persons
+          name: body
           required: true
           schema:
             items:
@@ -311,7 +311,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: persons
+          name: body
           required: true
           schema:
             items:
@@ -336,7 +336,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: person
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Person'
@@ -356,7 +356,7 @@ paths:
           format: uuid
           required: true
         - in: body
-          name: person
+          name: body
           required: true
           schema:
             $ref: '#/definitions/Person'
