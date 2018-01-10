@@ -39,27 +39,7 @@ paths:
     post:
       tags:
         - Race
-      summary: Create new race
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/Race'
-      responses:
-        201:
-          description: OK
-          schema:
-            $ref: '#/definitions/Race'
-    put:
-      tags:
-        - Race
-      summary: Update race
+      summary: Create or update race
       parameters:
         - in: header
           name: X-Token
@@ -132,7 +112,7 @@ paths:
     post:
       tags:
         - Group
-      summary: Create groups
+      summary: Create or update groups
       parameters:
         - in: header
           name: X-Token
@@ -153,71 +133,6 @@ paths:
             items:
               $ref: '#/definitions/Group'
             type: array
-    put:
-      tags:
-        - Group
-      summary: Update groups
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            items:
-              $ref: '#/definitions/Group'
-            type: array
-      responses:
-        201:
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/Group'
-            type: array
-  /group:
-    post:
-      tags:
-        - Group
-      summary: Create group
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/Group'
-      responses:
-        201:
-          description: OK
-          schema:
-            $ref: '#/definitions/Group'
-    put:
-      tags:
-        - Group
-      summary: Update group
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/Group'
-      responses:
-        201:
-          description: OK
-          schema:
-            $ref: '#/definitions/Group'
   /group/{group_id}:
     get:
       tags:
@@ -279,31 +194,7 @@ paths:
     post:
       tags:
         - Person
-      summary: Create persons
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            items:
-              $ref: '#/definitions/Person'
-            type: array
-      responses:
-        201:
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/Person'
-            type: array
-    put:
-      tags:
-        - Person
-      summary: Update persons
+      summary: Create or update persons
       parameters:
         - in: header
           name: X-Token
@@ -328,27 +219,7 @@ paths:
     post:
       tags:
         - Person
-      summary: Create person
-      parameters:
-        - in: header
-          name: X-Token
-          type: string
-          format: uuid
-          required: true
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/Person'
-      responses:
-        201:
-          description: OK
-          schema:
-            $ref: '#/definitions/Person'
-    put:
-      tags:
-        - Person
-      summary: Update person
+      summary: Create or update person
       parameters:
         - in: header
           name: X-Token

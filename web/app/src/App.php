@@ -83,18 +83,6 @@ class App
             return $response->withJson($race, 201);
         });
 
-        $this->slim->put('/api.v1/race[/]', function (Request $request, Response $response, $args) {
-            $app = App::getInstance();
-            $token = $request->getHeader('X-Token')[0];
-            $race = $request->getParsedBody();
-            if ($race['id'] != $app->model->getRaceIdByToken($token))
-            {
-                return $response->withStatus(403);
-            }
-            $app->model->updateRace($race);
-            return $response->withJson($race, 201);
-        });
-
         $this->slim->delete('/api.v1/race/{race_id}[/]', function (Request $request, Response $response, $args) {
             $app = App::getInstance();
             $token = $request->getHeader('X-Token')[0];
