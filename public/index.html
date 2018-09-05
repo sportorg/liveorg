@@ -3,8 +3,1241 @@
 <head>
     <meta charset="UTF-8">
     <title>SportOrg Live Center</title>
+    <style>
+        p,
+        blockquote,
+        ul,
+        ol,
+        dl,
+        table,
+        pre {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        table.sportorg-table {
+            display: block;
+            width: 100%;
+            overflow: auto;
+            word-break: keep-all;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        table.sportorg-table th {
+            font-weight: bold;
+            border-bottom: 2px solid black;
+            margin-bottom: 5px;
+        }
+
+        table.sportorg-table th,
+        table.sportorg-table td {
+            padding: 3px 13px;
+            text-align: left;
+            /*border: 1px solid #ddd;*/
+        }
+
+        table.sportorg-table tr {
+            background-color: #fff;
+            /*border-top: 1px solid #ccc;*/
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        /*table.sportorg-table tr:nth-child(2n) {*/
+        /*background-color: #f8f8f8;*/
+        /*}*/
+
+        table.empty-table {
+            width: auto;
+        }
+
+        table.empty-table tr {
+            background-color: white;
+            border: 0;
+        }
+
+        table.empty-table td, table.empty-table th {
+            border: 0;
+        }
+
+        hr {
+            box-sizing: content-box;
+            height: 0;
+        }
+
+        hr {
+            height: 0;
+            margin: 15px 0;
+            overflow: hidden;
+            background: transparent;
+            border: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        hr:before {
+            display: table;
+            content: "";
+        }
+
+        hr:after {
+            display: table;
+            clear: both;
+            content: "";
+        }
+
+        hr {
+            height: 4px;
+            padding: 0;
+            margin: 16px 0;
+            background-color: #e7e7e7;
+            border: 0 none;
+        }
+
+        a:not([href]) {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        a {
+            color: #4078c0;
+            text-decoration: none;
+        }
+
+        a:hover,
+        a:active {
+            text-decoration: underline;
+        }
+
+        a {
+            background-color: transparent;
+        }
+
+        a:active,
+        a:hover {
+            outline: 0;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* SPLITS */
+
+        .table-leg {
+            padding: 0;
+            margin: 0;
+        }
+
+        .table-leg th,
+        .table-leg td {
+            border: 0;
+        }
+
+        .table-leg tr {
+            border-top: 0;
+        }
+
+        .result-1,
+        .result-2,
+        .result-3 {
+            font-weight: bold;
+        }
+
+        .result-1 {
+            /*background: gold;*/
+        }
+
+        .result-2 {
+            /*background: silver;*/
+        }
+
+        .result-3 {
+            /*background: #cd7f32;*/
+        }
+
+        @media print {
+            @page {
+                margin: 0.5cm;
+            }
+
+            body {
+                font-size: 85%;
+            }
+
+            table.sportorg-table {
+                display: table;
+                width: 100%;
+            }
+
+            table.sportorg-table th,
+            table.sportorg-table td {
+                padding: 1px 10px;
+            }
+
+            table.sportorg-table,
+            pre {
+                margin-bottom: 1px;
+            }
+
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin: 1px 0;
+            }
+
+            section, .new-page {
+                page-break-before: always;
+            }
+
+            ul {
+                page-break-inside: avoid;
+            }
+
+            p {
+                widows: 4;
+            }
+
+            a[href^="http"]:after {
+                content: " (" attr(href) ")";
+            }
+
+            abbr[title]:after {
+                content: " (" attr(title) ")";
+            }
+
+            .print-only {
+                display: inline;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+    <style>
+        /* SETTINGS */
+        .sportorg-settings {
+            position: absolute;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            min-width: 350px;
+            background: white;
+            top: 3px;
+            right: 3px;
+        }
+
+        .sportorg-settings-row {
+            margin: 5px;
+        }
+
+        @media print {
+            .sportorg-settings {
+                display: none;
+            }
+        }
+    </style>
+    <script>
+        // Chrome 1+
+        var isChrome = !!window.chrome && !!window.chrome.webstore;
+        // Firefox 1.0+
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+
+        function subscribe(url, success, error) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState != 4) return;
+
+                if (this.status == 200) {
+                    success(JSON.parse(this.responseText));
+                } else {
+                    if (error) {
+                        error(this);
+                    }
+                }
+                setTimeout(function () {
+                    subscribe(url, success, error);
+                }, 5000)
+            };
+            xhr.open("GET", url, true);
+            xhr.send();
+        }
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        var MAX_ORG_NAME = 30;
+        var MAX_PERSON_NAME = 30;
+
+        var TableGenerator = (function () {
+            var Table = function () {
+                return document.createElement('table');
+            };
+            var THead = function () {
+                return document.createElement('thead');
+            };
+            var TBody = function () {
+                return document.createElement('tbody');
+            };
+            var Tr = function () {
+                return document.createElement('tr');
+            };
+            var Th = function () {
+                return document.createElement('th');
+            };
+            var Td = function () {
+                return document.createElement('td');
+            };
+
+            function TableGenerator(data, fields) {
+                this.data = data;
+                this.fields = fields;
+            }
+
+            TableGenerator.prototype.getTable = function (options) {
+                var table = Table();
+                if (options && options.className) table.className = options.className;
+                table.appendChild(this.getHead());
+                table.appendChild(this.getBody());
+                return table;
+            };
+
+            TableGenerator.prototype.getHead = function () {
+                var tr = Tr();
+                for (var _i = 0, _a = this.headers(); _i < _a.length; _i++) {
+                    var key = _a[_i];
+                    var th = Th();
+                    var title = this.getHeaderName(key);
+                    if (title instanceof Node) {
+                        th.appendChild(title);
+                    }
+                    else {
+                        th.appendChild(document.createTextNode(title));
+                    }
+                    tr.appendChild(th);
+                }
+                var thead = THead();
+                thead.appendChild(tr);
+                return thead;
+            };
+
+            TableGenerator.prototype.getBody = function () {
+                var tbody = TBody();
+                var cols = this.headers().length;
+                for (var _b = 0, _c = this.data; _b < _c.length; _b++) {
+                    var obj = _c[_b];
+                    var tr = Tr();
+                    if (obj instanceof Node || typeof obj === 'string') {
+                        var td = Td();
+                        td.colSpan = cols;
+                        if (typeof obj === 'string') {
+                            td.appendChild(document.createTextNode(obj));
+                        }
+                        else {
+                            td.appendChild(obj);
+                        }
+                        tr.appendChild(td);
+                    }
+                    else {
+                        for (var _i = 0, _a = this.headers(); _i < _a.length; _i++) {
+                            var key = _a[_i];
+                            var td = Td();
+                            if (obj[key]) {
+                                if (obj[key] instanceof Node) {
+                                    td.appendChild(obj[key]);
+                                }
+                                else {
+                                    td.appendChild(document.createTextNode(obj[key]));
+                                }
+                            }
+                            tr.appendChild(td);
+                        }
+                    }
+                    tbody.appendChild(tr);
+                }
+                return tbody;
+            };
+
+            TableGenerator.prototype.headers = function () {
+                if (this._headers) {
+                    return this._headers
+                }
+                if (!this.fields) {
+                    var headers = {};
+                    for (var _i = 0, _a = this.data; _i < _a.length; _i++) {
+                        var obj = _a[_i];
+                        for (var key in obj) {
+                            headers[key] = true;
+                        }
+                    }
+                    this._headers = Object.keys(headers)
+                } else if (this.fields instanceof Array) {
+                    this._headers = [];
+                    for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                        var field = _a[_i];
+                        if (typeof field === 'string') {
+                            this._headers.push(field);
+                        }
+                        else if (field.active !== false) {
+                            this._headers.push(field.key);
+                        }
+                    }
+                }
+                return this._headers;
+            };
+
+            TableGenerator.prototype.getHeaderName = function (key) {
+                if (this.fields && this.fields instanceof Array) {
+                    for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                        var field = _a[_i];
+                        if (typeof field === 'object' && field.key === key) {
+                            return field.title;
+                        }
+                    }
+                }
+                return key;
+            };
+
+            return TableGenerator
+        }());
+
+        var TableTextGenerator = (function () {
+
+            function TableTextGenerator(data, fields) {
+                this.data = data;
+                this.fields = fields;
+            }
+
+            TableTextGenerator.prototype.getTable = function (options) {
+                var node = document.createElement('pre');
+                if (options && options.className) node.className = options.className;
+                node.appendChild(this.getHead());
+                node.appendChild(this.getBody());
+                return node;
+            };
+
+            TableTextGenerator.prototype.getSliceText = function (text, size) {
+                if (text === undefined) {
+                    text = '';
+                }
+                text = String(text);
+                if (size) {
+                    text = text.slice(0, size);
+                    if (text.length < size + 1) {
+                        var arr = [];
+                        for (var i = 0; i < size + 1 - text.length; i++) {
+                            arr.push(' ');
+                        }
+                        text += arr.join('');
+                    }
+                } else {
+                    text += '\t';
+                }
+                return text;
+            };
+
+            TableTextGenerator.prototype.getHead = function () {
+                var text = '';
+                for (var _i = 0, _a = this.headers(); _i < _a.length; _i++) {
+                    var key = _a[_i];
+                    var h = this.getHeaderObj(key);
+                    var title = h && h.title;
+                    var size = h && h.size;
+                    if (size) {
+                        text += this.getSliceText(title, size);
+                    } else {
+                        text += title;
+                    }
+                }
+                text += '\n';
+                var blockU = document.createElement('u');
+                var blockB = document.createElement('b');
+                blockB.appendChild(document.createTextNode(text));
+                blockU.appendChild(blockB);
+                return blockU;
+            };
+
+            TableTextGenerator.prototype.getBody = function () {
+                var text = '';
+                for (var _b = 0, _c = this.data; _b < _c.length; _b++) {
+                    var obj = _c[_b];
+                    if (typeof obj === 'string') {
+                        text += obj;
+                    } else {
+                        for (var _i = 0, _a = this.headers(); _i < _a.length; _i++) {
+                            var key = _a[_i];
+                            var h = this.getHeaderObj(key);
+                            var size = h && h.size;
+                            if (size) {
+                                text += this.getSliceText(obj[key], size);
+                            } else {
+                                text += obj[key];
+                            }
+                        }
+                    }
+                    text += '\n';
+                }
+                return document.createTextNode(text);
+            };
+
+            TableTextGenerator.prototype.headers = function () {
+                if (this._headers) {
+                    return this._headers
+                }
+                if (!this.fields) {
+                    var headers = {};
+                    for (var _i = 0, _a = this.data; _i < _a.length; _i++) {
+                        var obj = _a[_i];
+                        for (var key in obj) {
+                            headers[key] = true;
+                        }
+                    }
+                    this._headers = Object.keys(headers)
+                } else if (this.fields instanceof Array) {
+                    this._headers = [];
+                    for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                        var field = _a[_i];
+                        if (typeof field === 'string') {
+                            this._headers.push(field);
+                        }
+                        else if (field.active !== false) {
+                            this._headers.push(field.key);
+                        }
+                    }
+                }
+                return this._headers;
+            };
+
+            TableTextGenerator.prototype.getHeaderName = function (key) {
+                if (this.fields && this.fields instanceof Array) {
+                    for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                        var field = _a[_i];
+                        if (typeof field === 'object' && field.key === key) {
+                            return field.title;
+                        }
+                    }
+                }
+                return key;
+            };
+
+            TableTextGenerator.prototype.getHeaderObj = function (key) {
+                if (this.fields && this.fields instanceof Array) {
+                    for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                        var field = _a[_i];
+                        if (typeof field === 'object' && field.key === key) {
+                            return field;
+                        }
+                    }
+                }
+            };
+
+            return TableTextGenerator
+        }());
+
+        var SettingsGenerator = (function () {
+            var Block = function () {
+                var el = document.createElement('div');
+                el.className = 'sportorg-settings';
+                return el
+            };
+            var Row = function () {
+                var el = document.createElement('div');
+                el.className = 'sportorg-settings-row';
+                return el
+            };
+
+            function SettingsGenerator(settings) {
+                this.settings = settings;
+                this.isShow = true;
+            }
+
+            SettingsGenerator.prototype.show = function () {
+                var block = Block();
+                for (var _i = 0, _a = this.settings; _i < _a.length; _i++) {
+                    var setting = _a[_i];
+                    var row = Row();
+                    row.className = row.className + ' ' + 'sportorg-settings-hidden';
+                    row.appendChild(this.getElBySetting(setting));
+                    block.appendChild(row);
+                }
+                var btn = Row();
+                btn.appendChild(this.getHiddenButton());
+                block.appendChild(btn);
+                document.body.appendChild(block);
+                this.toggleHidden();
+            };
+            SettingsGenerator.prototype.getElBySetting = function (setting) {
+                if (typeof setting.value === 'boolean') {
+                    var i = document.createElement('input');
+                    i.type = 'checkbox';
+                    if (setting.value) {
+                        i.checked = true;
+                    }
+                    if (setting.change) {
+                        i.onchange = function () {
+                            if (i.checked !== setting.value) {
+                                setting.change(i.checked);
+                                setting.value = i.checked;
+                            }
+                        }
+                    }
+                    var label = document.createElement('label');
+                    label.appendChild(i);
+                    label.appendChild(document.createTextNode(setting.title));
+                    return label
+                } else if (setting.value instanceof Array) {
+                    var s = document.createElement('select');
+                    for (var _i = 0, _a = setting.value; _i < _a.length; _i++) {
+                        var obj = _a[_i];
+                        s.appendChild(new Option(obj.text, obj.value));
+                    }
+                    if (setting.change) {
+                        s.onchange = function () {
+                            var results = [];
+                            for (var _i = 0, _a = s.selectedOptions; _i < _a.length; _i++) {
+                                var item = _a[_i];
+                                results.push(item.value);
+                            }
+                            setting.change(results);
+                        };
+                    }
+                    var label = document.createElement('label');
+                    label.appendChild(document.createTextNode(setting.title));
+                    label.appendChild(s);
+                    return label
+                }
+            };
+            SettingsGenerator.prototype.toggleHidden = function () {
+                var els = document.getElementsByClassName('sportorg-settings-hidden');
+                for (var _i = 0, els_ = els; _i < els_.length; _i++) {
+                    var el = els_[_i];
+                    if (this.isShow) {
+                        el.style.display = 'none';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                }
+                this.isShow = !this.isShow;
+            };
+            SettingsGenerator.prototype.getHiddenButton = function () {
+                var el = document.createElement('button');
+                el.appendChild(document.createTextNode('Свернуть/Развернуть'));
+                var _this = this;
+                el.onclick = function (ev) { _this.toggleHidden() };
+                return el;
+            };
+            return SettingsGenerator;
+        }());
+
+        function toHHMMSS(value) {
+            if (value === 0) {
+                return '00:00:00'
+            }
+            if (!value) return '';
+            value /= 1000;
+            var hours = Math.floor(value / 3600);
+            value %= 3600;
+            var minutes = Math.floor(value / 60);
+            var seconds = ~~(value % 60);
+
+            var date = new Date(2000, 0, 1, hours, minutes, seconds);
+
+            var with0 = function (dd) {
+                return (dd < 10 ? '0' + dd : dd) + '';
+            };
+
+            return with0(date.getHours()) + ':' + with0(date.getMinutes()) + ':' + with0(date.getSeconds());
+        }
+
+        function getById(list, id) {
+            if (id) {
+                for (var _i = 0, list_ = list; _i < list_.length; _i++) {
+                    var obj = list_[_i];
+                    if (obj.id === id) {
+                        return obj;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function racePreparation(race) {
+            for (var _i = 0, _a = race.persons; _i < _a.length; _i++) {
+                var obj = _a[_i];
+                obj.organization = getById(race.organizations, obj.organization_id);
+                obj.group = getById(race.groups, obj.group_id);
+            }
+            for (var _b = 0, _c = race.results; _b < _c.length; _b++) {
+                var obj = _c[_b];
+                obj.person = getById(race.persons, obj.person_id);
+            }
+            for (var _d = 0, _e = race.groups; _d < _e.length; _d++) {
+                var obj = _e[_d];
+                obj.course = getById(race.courses, obj.course_id);
+            }
+            for (var _f = 0, _g = ['groups', 'courses', 'organizations']; _f < _g.length; _f++) {
+                var itemName = _g[_f];
+                race[itemName].sort(function (a, b) {
+                    if (a.name.toUpperCase() < b.name.toUpperCase())
+                        return -1;
+                    if (a.name.toUpperCase() > b.name.toUpperCase())
+                        return 1;
+                    return 0;
+                });
+            }
+            return race;
+        }
+
+        function getGroupsBlockElement(race) {
+            var groupBlock = document.createElement('div');
+            groupBlock.className = 'no-print';
+            for (var _i = 0, _a = race.groups; _i < _a.length; _i++) {
+                var group = _a[_i];
+                var a = document.createElement('a');
+                a.href = '#' + group.name;
+                a.appendChild(document.createTextNode(group.name + ' '));
+                groupBlock.appendChild(a);
+            }
+            return groupBlock;
+        }
+
+        function dateFormat(date) {
+            date = date ? new Date(date) : new Date();
+            return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+        }
+
+        var Qualification = {
+            '': 'б/р',
+            0: 'б/р',
+            3: 'IIIю',
+            2: 'IIю',
+            1: 'Iю',
+            6: 'III',
+            5: 'II',
+            4: 'I',
+            7: 'КМС',
+            8: 'МС',
+            9: 'МСМК'
+        };
+
+        var STATUS_PRIORITY = [8, 4, 5, 13];
+
+        function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        }
+    </script>
 </head>
 <body>
-<h1>Live</h1>
+<div id="content">
+    <div class="text-center">
+        <h2>ПРОТОКОЛ РЕЗУЛЬТАТОВ</h2>
+    </div>
+    <div id="results-tables"></div>
+
+    <style>
+        table.table-split {
+            margin: 0;
+        }
+        table.table-split td{
+            border: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        var race = {};
+        // racePreparation(race);
+
+        function getResultsByGroup(group, count) {
+            count = +count || 0;
+            var isRelay = group.__type ? group.__type === 3 : race.data.race_type === 3;
+            var results = [];
+            for (var _i = 0, _a = race.results; _i < _a.length; _i++) {
+                var result = _a[_i];
+                if (result.status !== 13 && result.person && result.person.group && result.person.group.id === group.id && (count ? result.place <= count && result.place > 0 : 1)) {
+                    var r = {
+                        index: 0,
+                        name: (result.person.surname + ' ' + result.person.name).slice(0, MAX_PERSON_NAME),
+                        org: (result.person.organization && String(result.person.organization.name).slice(0, MAX_ORG_NAME)) || '',
+                        qual: Qualification[result.person.qual],
+                        bib: result.person.bib,
+                        year: result.person.birth_date ? (new Date(result.person.birth_date)).getFullYear() : '',
+                        penalty_time: toHHMMSS(result.penalty_time),
+                        penalty_laps: result.penalty_laps,
+                        result: result.result,
+                        resultMsec: result.result_msec,
+                        diff: race.settings.result_processing_mode === 'scores' ? result.diff_scores : toHHMMSS(result.diff),
+                        place: result.place,
+                        status: result.status,
+                        scores: result.scores,
+                        place_show: result.person.is_out_of_competition ? 'в/к' : result.place === 0 ? '' : result.place === -1 ? '' : result.place,
+                        speed: result.speed,
+                        data: result
+                    };
+                    if (result.status !== 1) {
+                        r.diff = '';
+                        r.place_show = '';
+                        r.speed = '';
+                        r.scores = '';
+                        r.penalty_time = '';
+                        r.penalty_laps = '';
+                    }
+
+                    // SPLITS
+                    var control_index = 0;
+                    if (result.splits) {
+                        var getTrBlock = function (t, p) {
+                            var tr = document.createElement('tr');
+                            var td1 = document.createElement('td');
+                            td1.className = 'result-' + p;
+                            td1.appendChild(document.createTextNode(t));
+                            tr.appendChild(td1);
+                            return tr;
+                        };
+                        var lastSplit = 0;
+                        for (var _b = 0, _c = result.splits; _b < _c.length; _b++) {
+                            var split = _c[_b];
+                            if (split.is_correct) {
+
+                                var tbl = document.createElement('table');
+                                tbl.className = 'table-split';
+                                tbl.appendChild(getTrBlock(toHHMMSS(split.leg_time) + ' (' + split.leg_place + ')', split.leg_place));
+                                tbl.appendChild(getTrBlock(toHHMMSS(split.relative_time) + ' (' + split.relative_place + ')', split.relative_place));
+                                r[control_index + '_' + split.code] = tbl;
+                                control_index++;
+                                lastSplit = split.relative_time;
+                            }
+                        }
+
+                        var finishMsec = r.resultMsec - lastSplit;
+
+                        if (r.status === 1 && finishMsec > 0) {
+                            var tblF = document.createElement('table');
+                            tblF.className = 'table-split';
+                            tblF.appendChild(getTrBlock(toHHMMSS(finishMsec), 0));
+                            tblF.appendChild(getTrBlock(toHHMMSS(r.resultMsec) + ' (' + r.place + ')', r.place));
+                            r.finish_split = tblF;
+                        }
+                    }
+
+                    var getMultipleTrBlock = function () {
+                        var tr = document.createElement('tr');
+                        for (var i = 0; i < arguments.length; i++) {
+                            var td1 = document.createElement('td');
+                            td1.appendChild(document.createTextNode(arguments[i]));
+                            tr.appendChild(td1);
+                        }
+                        return tr;
+                    };
+
+                    // ALL PUNCHES
+                    var splitTable = document.createElement('table');
+                    splitTable.className = 'table-split';
+                    var splitTr = document.createElement('tr');
+                    splitTable.appendChild(splitTr);
+                    var prevTime = result.start_msec;
+                    for (var _b = 0, _c = result.splits; _b < _c.length; _b++) {
+                        var split = _c[_b];
+                        var tbl = document.createElement('table');
+                        tbl.className = 'table-split';
+                        tbl.appendChild(getMultipleTrBlock('( ' + split.code + ' )', toHHMMSS(split.time - prevTime)));
+                        tbl.appendChild(getMultipleTrBlock('', toHHMMSS(split.time - result.start_msec)));
+                        var splitTd = document.createElement('td');
+                        splitTd.appendChild(tbl);
+                        splitTr.appendChild(splitTd);
+                        prevTime = split.time;
+                    }
+                    r.all_splits = splitTable;
+
+                    results.push(r);
+                }
+            }
+            results.sort(function (a, b) {
+                if (isRelay) {
+                    if (a.place < 1) {
+                        return 1
+                    }
+                    if (b.place < 1) {
+                        return -1
+                    }
+                    if (isRelay && a.place === b.place) {
+                        return ~~(a.bib / 1000) - ~~(b.bib / 1000)
+                    }
+                    return a.place - b.place
+
+                } else {
+                    if (a.status !== 1 && b.status !== 1) {
+                        return STATUS_PRIORITY.indexOf(a.status) - STATUS_PRIORITY.indexOf(b.status);
+                    }
+                    if (a.status !== 1) {
+                        return 1
+                    }
+                    if (b.status !== 1) {
+                        return -1
+                    }
+                    if (a.place < 1) {
+                        return 1
+                    }
+                    if (b.place < 1) {
+                        return -1
+                    }
+                    return a.place - b.place
+                }
+            });
+            var index = 0;
+            if (isRelay) {
+                var prevBib = 0;
+                var resultsList = results.slice();
+                results = [];
+                for (var _i = 0, resultsList_ = resultsList; _i < resultsList_.length; _i++) {
+                    var r = resultsList_[_i];
+                    r.index = '';
+                    if (r.bib % 1000 !== prevBib) {
+                        index++;
+                        results.push({index: index});
+                        prevBib = r.bib % 1000;
+                    }
+                    results.push(r);
+                }
+            } else {
+                results.forEach(function (elem) {
+                    index++;
+                    elem.index = index;
+                })
+            }
+            return results;
+        }
+
+        function getRankingByGroup(group) {
+            var rankingBlock = document.createElement('span');
+            var ranking = group.ranking;
+            if (ranking && ranking.is_active && ranking.rank_scores > 0) {
+                var text = 'Квалификационный уровень (баллы): ' + ranking.rank_scores.toFixed(0);
+                rankingBlock.appendChild(document.createTextNode(text));
+
+                for (var _i = 0; _i < ranking.rank.length; _i++) {
+                    var rank = ranking.rank[_i];
+                    if (rank.is_active) {
+                        if (rank.max_place > 0) {
+                            var text = Qualification[rank.qual] + ' - до ' + rank.max_place + ' места';
+                            rankingBlock.appendChild(document.createElement("br"));
+                            rankingBlock.appendChild(document.createTextNode(text));
+                        }
+                        else {
+                            if (rank.max_time > 0) {
+                                var text = Qualification[rank.qual] + ' - ' + toHHMMSS(rank.max_time);
+                                if (rank.percent > 0) {
+                                    text += ' (' + rank.percent + '%)';
+                                }
+                                rankingBlock.appendChild(document.createElement("br"));
+                                rankingBlock.appendChild(document.createTextNode(text));
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                var text = 'Ранг не подсчитывался';
+                rankingBlock.appendChild(document.createTextNode(text));
+            }
+
+            return rankingBlock;
+        }
+
+        var Fields = {
+            localId: 'race_' + race.id + '_result_fields',
+            fields: [
+                {key: 'index', title: '№', size: 4},
+                {key: 'name', title: 'Фамилия, имя', size: 30},
+                {key: 'org', title: 'Коллектив', size: 20},
+                {key: 'year', title: 'ГР', size: 5},
+                {key: 'qual', title: 'Разряд', size: 7},
+                {key: 'bib', title: 'Номер', size: 6},
+                {key: 'penalty_time', title: 'Штраф', size: 9, active: false},
+                {key: 'penalty_laps', title: 'Штраф', size: 9, active: false},
+                {key: 'result', title: 'Результат', size: 16},
+                {key: 'diff', title: 'Отставание', size: 11},
+                {key: 'speed', title: 'Темп', size: 12, active: false},
+                {key: 'place_show', title: 'Место', size: 6},
+                {key: 'scores', title: 'Очки', size: 5, active: false},
+                {key: 'all_splits', title: 'Сплиты', active: false}
+            ],
+            active: function (key, val) {
+                for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                    var obj = _a[_i];
+                    if (key === obj.key) {
+                        obj.active = val;
+                    }
+                }
+            },
+            isActive: function (key) {
+                for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                    var obj = _a[_i];
+                    if (key === obj.key) {
+                        if (obj.active === void 0) {
+                            return true;
+                        }
+                        else {
+                            return !!obj.active;
+                        }
+                    }
+                }
+                return false;
+            },
+            getField: function (key) {
+                for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
+                    var obj = _a[_i];
+                    if (key === obj.key) {
+                        return obj
+                    }
+                }
+            },
+            getCopyFields: function () {
+                return JSON.parse(JSON.stringify(this.fields))
+            },
+            init: function () {
+                try {
+                    this.getField('all_splits').active = location.href.indexOf('all_splits=1') > -1;
+                    this.getField('scores').active = location.href.indexOf('scores=1') > -1;
+                    this.getField('penalty_time').active = location.href.indexOf('penalty_time=1') > -1;
+                } catch (e){}
+                return this;
+            }
+        }.init();
+
+        store = {
+            showLinkForGroups: false
+        };
+
+        try {
+            store.splitsShow = location.href.indexOf('s_splits=1') > -1;
+            store.rankingShow = location.href.indexOf('ranking=1') > -1;
+            store.id = getParameterByName('id');
+        } catch (e) {}
+
+        function render() {
+            if (!race.id) {
+                return;
+            }
+            var resultBlock = document.getElementById('results-tables');
+            resultBlock.innerHTML = '';
+            for (var _i = 0, _a = race.groups; _i < _a.length; _i++) {
+                var group = _a[_i];
+                var rows = getResultsByGroup(group, store.count);
+                if (!rows.length) {
+                    continue;
+                }
+                var titleBlock = document.createElement('h2');
+                titleBlock.id = group.name;
+                var groupTitle = group.name;
+                if (group.course && group.course.controls && group.course.controls.length){
+                    groupTitle += ', ' + group.course.controls.length + ' КП';
+                }
+                if (group.course && group.course.length){
+                    groupTitle += ', ' + group.course.length / 1000 + ' км';
+                }
+                titleBlock.appendChild(document.createTextNode(groupTitle));
+                resultBlock.appendChild(titleBlock);
+                if (store.showLinkForGroups) {
+                    resultBlock.appendChild(getGroupsBlockElement(race));
+                }
+                var fields = Fields.getCopyFields();
+                if (store.splitsShow && group.course) {
+                    group.course.controls.forEach(function (control, index) {
+                        fields.push({key: index + '_' + control.code, title: control.code})
+                    });
+                    fields.push({key: 'finish_split', title: 'F'})
+                }
+                if (!store.tableView && !store.splitsShow && !Fields.isActive('all_splits')) {
+                    resultBlock.appendChild(new TableTextGenerator(rows, fields).getTable());
+                } else {
+                    resultBlock.appendChild(new TableGenerator(rows, fields).getTable({className: 'sportorg-table'}));
+                }
+
+                //show ranking information
+                if (store.rankingShow) {
+                    resultBlock.appendChild(getRankingByGroup(group))
+                }
+                if (store.newPage && _i < _a.length - 1) {
+                    var newPage = document.createElement('div');
+                    newPage.className = 'new-page';
+                    resultBlock.appendChild(newPage);
+                }
+            }
+            var query = {
+                id: store.id || '',
+                s_splits: store.splitsShow ? 1 : 0,
+                ranking: store.rankingShow ? 1 : 0,
+                all_splits: Fields.isActive('all_splits') ? 1 : 0,
+                scores: Fields.isActive('scores') ? 1 : 0,
+                penalty_time: Fields.isActive('penalty_time') ? 1 : 0
+            };
+            var queryString = '?';
+            Object.keys(query).forEach(function (key) {
+                queryString += key + '=' + query[key] + '&';
+            });
+            queryString += 'sportorg=1';
+            try {
+                var href = location.href.split('?')[0];
+                history.pushState({}, null, href + queryString);
+            } catch (e) {}
+        }
+
+        new SettingsGenerator([
+            {
+                title: 'Ссылки на группы',
+                value: !!store.showLinkForGroups,
+                change: function (checked) {
+                    store.showLinkForGroups = checked;
+                    render()
+                }
+            },
+            {
+                title: 'Табличный вид',
+                value: !!store.tableView,
+                change: function (checked) {
+                    store.tableView = checked;
+                    render()
+                }
+            },
+            {
+                title: 'Номер',
+                value: Fields.isActive('bib'),
+                change: function (checked) {
+                    Fields.active('bib', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Штрафное время',
+                value: Fields.isActive('penalty_time'),
+                change: function (checked) {
+                    Fields.active('penalty_time', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Кол-во штрафных кругов',
+                value: Fields.isActive('penalty_laps'),
+                change: function (checked) {
+                    Fields.active('penalty_laps', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Отставание',
+                value: Fields.isActive('diff'),
+                change: function (checked) {
+                    Fields.active('diff', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Темп',
+                value: Fields.isActive('speed'),
+                change: function (checked) {
+                    Fields.active('speed', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Сплиты (заданное направление)',
+                value: !!store.splitsShow,
+                change: function (checked) {
+                    store.splitsShow = checked;
+                    render()
+                }
+            },
+            {
+                title: 'Сплиты (все отметки)',
+                value: Fields.isActive('all_splits'),
+                change: function (checked) {
+                    Fields.active('all_splits', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Очки',
+                value: Fields.isActive('scores'),
+                change: function (checked) {
+                    Fields.active('scores', checked);
+                    render()
+                }
+            },
+            {
+                title: 'Выполнение',
+                value: store.rankingShow,
+                change: function (checked) {
+                    store.rankingShow = checked;
+                    render()
+                }
+            },
+            {
+                title: 'Показать первые: ',
+                value: [
+                    {text: 'Все результаты', value: 0},
+                    {text: '1', value: 1},
+                    {text: '3', value: 3},
+                    {text: '4', value: 4},
+                    {text: '5', value: 5},
+                    {text: '6', value: 6},
+                    {text: '10', value: 10}
+                ],
+                change: function (arr) {
+                    store.count = arr[0];
+                    render();
+                }
+            },
+            {
+                title: 'Печатать на отдельной странице',
+                value: false,
+                change: function (checked) {
+                    store.newPage = checked;
+                    render()
+                }
+            }
+        ]).show();
+
+        if (store.id) {
+            subscribe('/events/' + store.id + '.json', function (r) {
+                race = r;
+                racePreparation(race);
+                render();
+            });
+        }
+    </script>
+
+</div>
+<div id="footer">
+    <a href="http://www.sportorg.o-ural.ru">ПО SportOrg</a>
+</div>
 </body>
 </html>

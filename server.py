@@ -1,3 +1,5 @@
+import random
+import string
 import sys
 import os
 import json
@@ -81,7 +83,7 @@ token_serializer = TokenSerializer('secret')
 @app.route('/api/events', methods=['POST'])
 @cross_domain(origin='*')
 def post_event():
-    event_id = time.time()
+    event_id = str(round(time.time())) + ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
     return jsonify({
         'id': str(event_id),
         'token': token_serializer.dumps({
@@ -99,8 +101,19 @@ def post_events(token):
         return jsonify({'error': str(e)}), 403
     if 'id' not in data:
         return jsonify({'error': 'Error'}), 400
-    with open(base_dir('public', 'events', str(data['id']) + '.json'), 'w+') as f:
-        json.dump(json.loads(request.data), f)
+    file_path = base_dir('public', 'events', str(data['id']) + '.json')
+    obj = json.loads(request.data)
+    if os.path.isfile(file_path):
+        if obj['object'] != 'Race':
+            with open(file_path, 'r+') as f:
+                old_obj = json.load(f)
+                # TODO
+                obj = old_obj
+    else:
+        if obj['object'] != 'Race':
+            return jsonify({'error': 'Race not found'}), 404
+    with open(file_path, 'w+') as f:
+        json.dump(obj, f)
     return jsonify({
         'status': 'ok'
     })
@@ -115,6 +128,7 @@ def delete_events(token):
         return jsonify({'error': str(e)}), 403
     if 'id' not in data:
         return jsonify({'error': 'Error'}), 400
+    # TODO
     return jsonify({
         'status': 'ok'
     })
@@ -124,6 +138,12 @@ def delete_events(token):
 @cross_domain(origin='*')
 def root():
     return app.send_static_file('index.html')
+
+
+@app.route('/admin')
+@cross_domain(origin='*')
+def admin():
+    return app.send_static_file('admin.html')
 
 
 if __name__ == '__main__':

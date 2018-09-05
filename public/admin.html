@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SportOrg Live Center</title>
+</head>
+<body>
+<div id="content"></div>
+<script>
+    function subscribe(url, success, error) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function() {
+            if (this.readyState != 4) return;
+
+            if (this.status == 200) {
+                success(JSON.parse(this.responseText));
+            } else {
+                if (error) {
+                    error(this);
+                }
+            }
+        };
+        xhr.open("POST", url, true);
+        xhr.send();
+    }
+
+    subscribe('/api/events', function (res) {
+        var el = document.getElementById('content');
+        var pre = document.createElement('pre');
+        var code = document.createElement('code');
+        pre.appendChild(code);
+        code.appendChild(document.createTextNode("Live url: " + location.origin + "/?id=" + res.id + "\n"));
+        code.appendChild(document.createTextNode("Result url: " + location.origin + "/api/events/" + res.token + "\n"));
+        el.appendChild(pre);
+        // el.appendChild(document.createTextNode(res.id));
+    })
+</script>
+</body>
+</html>
