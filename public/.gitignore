@@ -1,1 +1,2 @@
-!events/index.html
+events/*.json
+events/info/*.json

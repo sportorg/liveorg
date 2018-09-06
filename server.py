@@ -102,6 +102,7 @@ def post_events(token):
     if 'id' not in data:
         return jsonify({'error': 'Error'}), 400
     file_path = base_dir('public', 'events', str(data['id']) + '.json')
+    file_path_info = base_dir('public', 'events', 'info', str(data['id']) + '.json')
     obj = json.loads(request.data)
     if os.path.isfile(file_path):
         if obj['object'] != 'Race':
@@ -114,6 +115,10 @@ def post_events(token):
             return jsonify({'error': 'Race not found'}), 404
     with open(file_path, 'w+') as f:
         json.dump(obj, f)
+    with open(file_path_info, 'w+') as f:
+        json.dump({
+            'update_time': time.time()
+        }, f)
     return jsonify({
         'status': 'ok'
     })

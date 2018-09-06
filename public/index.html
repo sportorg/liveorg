@@ -192,7 +192,6 @@
                 margin-bottom: 1px;
             }
 
-
             h1,
             h2,
             h3,
@@ -259,22 +258,25 @@
         // Firefox 1.0+
         var isFirefox = typeof InstallTrigger !== 'undefined';
 
-        function subscribe(url, success, error) {
+        function subscribe(url, success, error, polling) {
             var xhr = new XMLHttpRequest();
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (this.readyState != 4) return;
 
                 if (this.status == 200) {
                     success(JSON.parse(this.responseText));
-                } else {
+                }
+                else {
                     if (error) {
                         error(this);
                     }
                 }
-                setTimeout(function () {
-                    subscribe(url, success, error);
-                }, 5000)
+                if (polling) {
+                    setTimeout(function () {
+                        subscribe(url, success, error, polling);
+                    }, 5000);
+                }
             };
             xhr.open("GET", url, true);
             xhr.send();
@@ -395,7 +397,8 @@
                         }
                     }
                     this._headers = Object.keys(headers)
-                } else if (this.fields instanceof Array) {
+                }
+                else if (this.fields instanceof Array) {
                     this._headers = [];
                     for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
                         var field = _a[_i];
@@ -454,7 +457,8 @@
                         }
                         text += arr.join('');
                     }
-                } else {
+                }
+                else {
                     text += '\t';
                 }
                 return text;
@@ -469,7 +473,8 @@
                     var size = h && h.size;
                     if (size) {
                         text += this.getSliceText(title, size);
-                    } else {
+                    }
+                    else {
                         text += title;
                     }
                 }
@@ -487,14 +492,16 @@
                     var obj = _c[_b];
                     if (typeof obj === 'string') {
                         text += obj;
-                    } else {
+                    }
+                    else {
                         for (var _i = 0, _a = this.headers(); _i < _a.length; _i++) {
                             var key = _a[_i];
                             var h = this.getHeaderObj(key);
                             var size = h && h.size;
                             if (size) {
                                 text += this.getSliceText(obj[key], size);
-                            } else {
+                            }
+                            else {
                                 text += obj[key];
                             }
                         }
@@ -517,7 +524,8 @@
                         }
                     }
                     this._headers = Object.keys(headers)
-                } else if (this.fields instanceof Array) {
+                }
+                else if (this.fields instanceof Array) {
                     this._headers = [];
                     for (var _i = 0, _a = this.fields; _i < _a.length; _i++) {
                         var field = _a[_i];
@@ -609,7 +617,8 @@
                     label.appendChild(i);
                     label.appendChild(document.createTextNode(setting.title));
                     return label
-                } else if (setting.value instanceof Array) {
+                }
+                else if (setting.value instanceof Array) {
                     var s = document.createElement('select');
                     for (var _i = 0, _a = setting.value; _i < _a.length; _i++) {
                         var obj = _a[_i];
@@ -637,7 +646,8 @@
                     var el = els_[_i];
                     if (this.isShow) {
                         el.style.display = 'none';
-                    } else {
+                    }
+                    else {
                         el.style.display = 'block';
                     }
                 }
@@ -647,7 +657,9 @@
                 var el = document.createElement('button');
                 el.appendChild(document.createTextNode('Свернуть/Развернуть'));
                 var _this = this;
-                el.onclick = function (ev) { _this.toggleHidden() };
+                el.onclick = function (ev) {
+                    _this.toggleHidden()
+                };
                 return el;
             };
             return SettingsGenerator;
@@ -752,6 +764,7 @@
                     .toString(16)
                     .substring(1);
             }
+
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         }
     </script>
@@ -767,13 +780,15 @@
         table.table-split {
             margin: 0;
         }
-        table.table-split td{
+
+        table.table-split td {
             border: 0;
             padding: 0;
         }
     </style>
     <script>
         var race = {};
+
         // racePreparation(race);
 
         function getResultsByGroup(group, count) {
@@ -893,7 +908,8 @@
                     }
                     return a.place - b.place
 
-                } else {
+                }
+                else {
                     if (a.status !== 1 && b.status !== 1) {
                         return STATUS_PRIORITY.indexOf(a.status) - STATUS_PRIORITY.indexOf(b.status);
                     }
@@ -927,7 +943,8 @@
                     }
                     results.push(r);
                 }
-            } else {
+            }
+            else {
                 results.forEach(function (elem) {
                     index++;
                     elem.index = index;
@@ -1028,7 +1045,8 @@
                     this.getField('all_splits').active = location.href.indexOf('all_splits=1') > -1;
                     this.getField('scores').active = location.href.indexOf('scores=1') > -1;
                     this.getField('penalty_time').active = location.href.indexOf('penalty_time=1') > -1;
-                } catch (e){}
+                } catch (e) {
+                }
                 return this;
             }
         }.init();
@@ -1041,7 +1059,8 @@
             store.splitsShow = location.href.indexOf('s_splits=1') > -1;
             store.rankingShow = location.href.indexOf('ranking=1') > -1;
             store.id = getParameterByName('id');
-        } catch (e) {}
+        } catch (e) {
+        }
 
         function render() {
             if (!race.id) {
@@ -1058,10 +1077,10 @@
                 var titleBlock = document.createElement('h2');
                 titleBlock.id = group.name;
                 var groupTitle = group.name;
-                if (group.course && group.course.controls && group.course.controls.length){
+                if (group.course && group.course.controls && group.course.controls.length) {
                     groupTitle += ', ' + group.course.controls.length + ' КП';
                 }
-                if (group.course && group.course.length){
+                if (group.course && group.course.length) {
                     groupTitle += ', ' + group.course.length / 1000 + ' км';
                 }
                 titleBlock.appendChild(document.createTextNode(groupTitle));
@@ -1078,7 +1097,8 @@
                 }
                 if (!store.tableView && !store.splitsShow && !Fields.isActive('all_splits')) {
                     resultBlock.appendChild(new TableTextGenerator(rows, fields).getTable());
-                } else {
+                }
+                else {
                     resultBlock.appendChild(new TableGenerator(rows, fields).getTable({className: 'sportorg-table'}));
                 }
 
@@ -1108,7 +1128,8 @@
             try {
                 var href = location.href.split('?')[0];
                 history.pushState({}, null, href + queryString);
-            } catch (e) {}
+            } catch (e) {
+            }
         }
 
         new SettingsGenerator([
@@ -1226,13 +1247,51 @@
             }
         ]).show();
 
+        var updateTime = 0;
+
         if (store.id) {
-            subscribe('/events/' + store.id + '.json', function (r) {
-                race = r;
-                racePreparation(race);
-                render();
-            });
+            subscribe('/events/info/' + store.id + '.json', function (data) {
+                if (updateTime !== data.update_time) {
+                    updateTime = data.update_time;
+                    subscribe('/events/' + store.id + '.json', function (r) {
+                        race = r;
+                        racePreparation(race);
+                        render();
+                    });
+                }
+            }, null, true);
         }
+
+        var Scrolling = {
+            direction: 1,
+            enabled: false,
+            init: function () {
+                var _this = this;
+                window.onscroll = function () {
+                    var d = document.documentElement;
+                    var offset = d.scrollTop + window.innerHeight;
+                    var height = d.offsetHeight;
+
+                    if (offset === height) {
+                        _this.direction = -1;
+                    }
+                    if (offset <= window.innerHeight) {
+                        _this.direction = 1;
+                    }
+                };
+                this.pageScroll();
+                return this;
+            },
+            pageScroll: function () {
+                var _this = this;
+                if (_this.enabled) {
+                    window.scrollBy(0, _this.direction);
+                }
+                setTimeout(function () {
+                    _this.pageScroll()
+                }, 50);
+            }
+        }.init();
     </script>
 
 </div>
