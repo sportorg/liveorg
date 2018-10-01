@@ -233,7 +233,7 @@
     <style>
         /* SETTINGS */
         .sportorg-settings {
-            position: absolute;
+            position: fixed;
             border: 1px solid #dddddd;
             border-radius: 5px;
             min-width: 350px;
@@ -903,13 +903,12 @@
                     if (b.place < 1) {
                         return -1
                     }
-                    if (isRelay && a.place === b.place) {
+                    if (a.place === b.place) {
                         return ~~(a.bib / 1000) - ~~(b.bib / 1000)
                     }
                     return a.place - b.place
 
-                }
-                else {
+                } else {
                     if (a.status !== 1 && b.status !== 1) {
                         return STATUS_PRIORITY.indexOf(a.status) - STATUS_PRIORITY.indexOf(b.status);
                     }
@@ -918,6 +917,12 @@
                     }
                     if (b.status !== 1) {
                         return -1
+                    }
+                    if (a.is_out_of_competition || b.is_out_of_competition) {
+                        if (race.settings.result_processing_mode === 'scores' && a.scores !== b.scores) {
+                            return a.scores - b.scores;
+                        }
+                        return a.result_msec - b.result_msec;
                     }
                     if (a.place < 1) {
                         return 1
@@ -1132,6 +1137,37 @@
             }
         }
 
+        var Scrolling = {
+            direction: 1,
+            enabled: true,
+            init: function () {
+                var _this = this;
+                window.onscroll = function () {
+                    var d = document.documentElement;
+                    var offset = d.scrollTop + window.innerHeight;
+                    var height = d.offsetHeight;
+
+                    if (offset === height) {
+                        _this.direction = -1;
+                    }
+                    if (offset <= window.innerHeight) {
+                        _this.direction = 1;
+                    }
+                };
+                this.pageScroll();
+                return this;
+            },
+            pageScroll: function () {
+                var _this = this;
+                if (_this.enabled) {
+                    window.scrollBy(10, _this.direction);
+                }
+                setTimeout(function () {
+                    _this.pageScroll()
+                }, 10);
+            }
+        }.init();
+
         new SettingsGenerator([
             {
                 title: 'Ссылки на группы',
@@ -1244,7 +1280,14 @@
                     store.newPage = checked;
                     render()
                 }
-            }
+            },
+            {
+                title: 'Автоскролл',
+                value: Scrolling.enabled,
+                change: function (checked) {
+                    Scrolling.enabled = checked;
+                }
+            },
         ]).show();
 
         var updateTime = 0;
@@ -1261,37 +1304,6 @@
                 }
             }, null, true);
         }
-
-        var Scrolling = {
-            direction: 1,
-            enabled: false,
-            init: function () {
-                var _this = this;
-                window.onscroll = function () {
-                    var d = document.documentElement;
-                    var offset = d.scrollTop + window.innerHeight;
-                    var height = d.offsetHeight;
-
-                    if (offset === height) {
-                        _this.direction = -1;
-                    }
-                    if (offset <= window.innerHeight) {
-                        _this.direction = 1;
-                    }
-                };
-                this.pageScroll();
-                return this;
-            },
-            pageScroll: function () {
-                var _this = this;
-                if (_this.enabled) {
-                    window.scrollBy(0, _this.direction);
-                }
-                setTimeout(function () {
-                    _this.pageScroll()
-                }, 50);
-            }
-        }.init();
     </script>
 
 </div>
