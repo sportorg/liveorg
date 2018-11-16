@@ -168,6 +168,10 @@
             /*background: #cd7f32;*/
         }
 
+        .logo {
+            width: 24px;
+        }
+
         @media print {
             @page {
                 margin: 0.5cm;
@@ -236,10 +240,10 @@
             position: fixed;
             border: 1px solid #dddddd;
             border-radius: 5px;
-            min-width: 350px;
             background: white;
             top: 3px;
             right: 3px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         .sportorg-settings-row {
@@ -585,6 +589,7 @@
 
             SettingsGenerator.prototype.show = function () {
                 var block = Block();
+                this.el = block;
                 for (var _i = 0, _a = this.settings; _i < _a.length; _i++) {
                     var setting = _a[_i];
                     var row = Row();
@@ -646,9 +651,15 @@
                     var el = els_[_i];
                     if (this.isShow) {
                         el.style.display = 'none';
+                        if (this.el) {
+                            this.el.style.opacity = '.3';
+                        }
                     }
                     else {
                         el.style.display = 'block';
+                        if (this.el) {
+                            this.el.style.opacity = '1';
+                        }
                     }
                 }
                 this.isShow = !this.isShow;
@@ -1141,8 +1152,13 @@
         var Scrolling = {
             direction: 1,
             enabled: true,
+            lock: false,
+            prev: 0,
             init: function () {
                 var _this = this;
+                setInterval(function () {
+                    _this.lock = !_this.lock;
+                }, 5000);
                 window.onscroll = function () {
                     var d = document.documentElement;
                     var offset = d.scrollTop + window.innerHeight;
@@ -1160,11 +1176,11 @@
             },
             pageScroll: function () {
                 var _this = this;
-                if (_this.enabled) {
+                if (_this.enabled && ! _this.lock) {
                     window.scrollBy(10, _this.direction);
                 }
                 setTimeout(function () {
-                    _this.pageScroll()
+                    _this.pageScroll();
                 }, 10);
             }
         }.init();
@@ -1309,7 +1325,7 @@
 
 </div>
 <div id="footer">
-    <a href="http://www.sportorg.o-ural.ru">ПО SportOrg</a>
+    <img src="sportorg.svg" class="logo" alt="SportOrg"> <a href="http://www.sportorg.o-ural.ru">ПО SportOrg</a>
 </div>
 </body>
 </html>
