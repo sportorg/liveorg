@@ -283,6 +283,7 @@
                 }
             };
             xhr.open("GET", url, true);
+            xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             xhr.send();
         }
 
